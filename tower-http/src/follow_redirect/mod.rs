@@ -93,8 +93,10 @@
 //! ```
 
 pub mod policy;
+mod resolve;
 
 use self::policy::{Action, Attempt, Policy, Standard};
+use self::resolve::resolve_uri;
 use futures_util::future::Either;
 use http::{
     header::CONTENT_ENCODING, header::CONTENT_LENGTH, header::CONTENT_TYPE, header::LOCATION,
@@ -102,10 +104,8 @@ use http::{
     Version,
 };
 use http_body::Body;
-use iri_string::types::{UriAbsoluteString, UriReferenceStr};
 use pin_project_lite::pin_project;
 use std::{
-    convert::TryFrom,
     future::Future,
     mem,
     pin::Pin,
@@ -389,14 +389,6 @@ where
     } else {
         policy.clone_body(body)
     }
-}
-
-/// Try to resolve a URI reference `relative` against a base URI `base`.
-fn resolve_uri(relative: &str, base: &Uri) -> Option<Uri> {
-    let relative = UriReferenceStr::new(relative).ok()?;
-    let base = UriAbsoluteString::try_from(base.to_string()).ok()?;
-    let uri = relative.resolve_against(&base).to_string();
-    Uri::try_from(uri).ok()
 }
 
 #[cfg(test)]
