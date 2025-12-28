@@ -69,6 +69,7 @@ jobs:
     - run: cargo update -p async-compression --precise 0.4.23
     - run: cargo update -p flate2 --precise 1.0.35
     - run: cargo update -p itoa --precise 1.0.15
+    - run: cargo update -p url --precise 2.5.2
     - run: cargo check -p tower-http --all-features
 
   style:

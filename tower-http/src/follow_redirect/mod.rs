@@ -102,7 +102,6 @@ use http::{
     Version,
 };
 use http_body::Body;
-use iri_string::types::{UriAbsoluteString, UriReferenceStr};
 use pin_project_lite::pin_project;
 use std::{
     convert::TryFrom,
@@ -115,6 +114,7 @@ use std::{
 use tower::util::Oneshot;
 use tower_layer::Layer;
 use tower_service::Service;
+use url::Url;
 
 /// [`Layer`] for retrying requests with a [`Service`] to follow redirection responses.
 ///
@@ -393,10 +393,9 @@ where
 
 /// Try to resolve a URI reference `relative` against a base URI `base`.
 fn resolve_uri(relative: &str, base: &Uri) -> Option<Uri> {
-    let relative = UriReferenceStr::new(relative).ok()?;
-    let base = UriAbsoluteString::try_from(base.to_string()).ok()?;
-    let uri = relative.resolve_against(&base).to_string();
-    Uri::try_from(uri).ok()
+    let base = Url::parse(&base.to_string()).ok()?;
+    let resolved = base.join(relative).ok()?;
+    Uri::try_from(resolved.as_str()).ok()
 }
 
 #[cfg(test)]
